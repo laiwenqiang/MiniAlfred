@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+
+<AnchorPane id="rootPane" xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.mini.alfred.AlfredController"
+          prefHeight="600" prefWidth="800">
+          
+    <StackPane AnchorPane.topAnchor="0.0" AnchorPane.leftAnchor="0.0" 
+               AnchorPane.rightAnchor="0.0" AnchorPane.bottomAnchor="0.0">
+               
+        <VBox id="alfredContainer" maxWidth="680" alignment="TOP_CENTER">
+            <padding>
+                <Insets top="100" />
+            </padding>
+            
+            <!-- Alfred Hat Icon -->
+            <StackPane id="alfredHatContainer">
+                <ImageView id="alfredHat" fitWidth="40" fitHeight="40" 
+                          StackPane.alignment="TOP_RIGHT">
+                    <Image url="@../images/alfred-hat.png"/>
+                </ImageView>
+            </StackPane>
+            
+            <!-- Search Container -->
+            <VBox id="searchContainer" maxWidth="680">
+                <!-- Search Bar -->
+                <HBox id="searchBar" alignment="CENTER_LEFT">
+                    <padding>
+                        <Insets top="15" right="20" bottom="15" left="20" />
+                    </padding>
+                    <TextField id="searchInput" fx:id="searchInput" promptText="输入搜索内容" text="aurora borealis" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                
+                <!-- Results -->
+                <ScrollPane id="resultsScroll" fitToWidth="true" fitToHeight="true" 
+                           VBox.vgrow="ALWAYS" maxHeight="400">
+                    <VBox id="results" fx:id="resultsContainer" spacing="0">
+                        <!-- Results will be added here programmatically -->
+                    </VBox>
+                </ScrollPane>
+            </VBox>
+        </VBox>
+    </StackPane>
+</AnchorPane> 

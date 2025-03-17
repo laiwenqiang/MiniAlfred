@@ -1,0 +1,183 @@
+/* 全局样式 */
+.root {
+    -fx-background-color: rgba(0, 0, 0, 0.8);
+    -fx-font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+}
+
+#rootPane {
+    -fx-background-color: transparent;
+}
+
+/* Alfred容器 */
+#alfredContainer {
+    -fx-spacing: 0;
+}
+
+#searchContainer {
+    -fx-background-color: rgba(30, 30, 30, 0.95);
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 10);
+}
+
+/* 搜索栏 */
+#searchBar {
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-width: 0 0 1 0;
+}
+
+#searchInput {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-font-size: 24px;
+    -fx-prompt-text-fill: rgba(255, 255, 255, 0.5);
+}
+
+/* 结果列表 */
+#resultsScroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+#resultsScroll .viewport {
+    -fx-background-color: transparent;
+}
+
+#results {
+    -fx-background-color: transparent;
+}
+
+/* 结果项 */
+.result-item {
+    -fx-padding: 12 20;
+    -fx-spacing: 15;
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+.result-item:hover, .result-item.selected {
+    -fx-background-color: rgba(128, 0, 128, 0.8);
+}
+
+.result-icon {
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-max-width: 36;
+    -fx-max-height: 36;
+    -fx-alignment: center;
+}
+
+.result-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.shortcut {
+    -fx-text-fill: #aa80aa;
+    -fx-font-size: 14px;
+    -fx-background-radius: 3;
+    -fx-padding: 2 6;
+}
+
+/* Alfred帽子 */
+#alfredHatContainer {
+    -fx-min-height: 0;
+    -fx-pref-height: 0;
+}
+
+#alfredHat {
+    -fx-translate-y: -25;
+    -fx-translate-x: -20;
+}
+
+/* 图标样式 */
+.google-icon {
+    -fx-background-color: white;
+    -fx-background-radius: 50%;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+}
+
+.google-icon .label {
+    -fx-text-fill: #4285F4;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.wiki-icon .label {
+    -fx-text-fill: white;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+}
+
+.dict-icon {
+    -fx-background-color: #8a2be2;
+    -fx-background-radius: 5;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+}
+
+.dict-icon .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.youtube-icon {
+    -fx-background-color: #FF0000;
+    -fx-background-radius: 5;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+}
+
+.youtube-icon .label {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+}
+
+.alfred-icon {
+    -fx-background-color: #5c3070;
+    -fx-background-radius: 5;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+}
+
+.alfred-icon .label {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+}
+
+.amazon-icon {
+    -fx-background-color: white;
+    -fx-background-radius: 5;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+}
+
+.amazon-icon .label {
+    -fx-text-fill: #FF9900;
+    -fx-font-size: 20px;
+}
+
+/* 文件路径样式 */
+.result-path {
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 12px;
+}
+
+/* 搜索为空样式 */
+.empty-result-icon {
+    -fx-background-color: #5c3070;
+    -fx-background-radius: 5;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-alignment: center;
+}
+
+.empty-result-icon .label {
+    -fx-text-fill: white;
+    -fx-font-size: 20px;
+} 

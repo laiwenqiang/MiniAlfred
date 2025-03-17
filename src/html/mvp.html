@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alfred MVP</title>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            padding-top: 100px;
+            margin: 0;
+            height: 100vh;
+        }
+        
+        .alfred-container {
+            width: 680px;
+            background-color: rgba(30, 30, 30, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            color: white;
+        }
+        
+        .search-bar {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-input {
+            border: none;
+            outline: none;
+            font-size: 24px;
+            width: 100%;
+            background: transparent;
+            color: white;
+        }
+        
+        .results {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .result-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        
+        .result-item:hover, .result-item.selected {
+            background-color: rgba(128, 0, 128, 0.8);
+        }
+        
+        .result-icon {
+            width: 36px;
+            height: 36px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .result-text {
+            flex: 1;
+        }
+        
+        .result-title {
+            font-weight: 400;
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+        
+        .shortcut {
+            color: #aa80aa;
+            font-size: 14px;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .alfred-hat {
+            position: absolute;
+            top: 75px;
+            right: calc(50% - 320px);
+            width: 40px;
+            height: 40px;
+        }
+        
+        .google-icon {
+            background-color: transparent;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .google-icon img {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .wiki-icon, .dict-icon, .youtube-icon, .alfred-icon, .amazon-icon {
+            font-size: 24px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="alfred-hat">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBkPSJNNDgwIDMySDMyQzEyLjUgMzIgLjAzIDUyLjUgMCA3MmwuOCAyMGMuNzIgMTkuNSAxMy44OSA0MCAzMy4yIDQwaDQxMmMxOS4zIDAgMzIuNS0yMC41IDMzLjItNDBsLjgtMjBjLS4wMy0xOS41LTEyLjUtNDAtMzItNDB6TTE3Mi41IDEyOC4yYy4xLS4xLjItLjIuMy0uMkMxNzMgMTI4IDE3MyAxMjggMTcyLjUgMTI4LjJ6TTQ4NC4yIDE5MkMNNA2LjIgMTkyIDE5MCA1MTIuOSAxOTUgNTEyLjlWNDgwYzAtMTcuNy0xNC4zLTMyLTMyLTMySDk2Ljg1Qzg1LjUgNDQ4IDgwIDQzNy42IDgwIDQzNmwzLjQtLjJjNDYtMi42IDg4LjYtMTYuMS0xMy4xLTE2LjFDMTEuOSA0MTkuNyAwIDQzMi41IDAgNDQ4djY0bC0xLjkuNy44IDYzLjZDLS4yIDU4Ny43IDkyLjYgNjQwIDE5MiA2NDBoMTI4YzUxLjQgMCAxNjMuMy0yOC43IDE5Mi0xOTJIMTA5Ljd2LTCNgNDAtNDEuOCA2NC0xMDYuNyA2NHoiIGZpbGw9IiM2MDM1ODAiLz48L3N2Zz4=" alt="Alfred Hat">
+    </div>
+    <div class="alfred-container">
+        <div class="search-bar">
+            <input type="text" class="search-input" value="aurora borealis" autofocus>
+        </div>
+        
+        <div class="results">
+            <div class="result-item">
+                <div class="result-icon google-icon">
+                    <div style="background-color: white; border-radius: 50%; padding: 6px;">
+                        <span style="font-size: 24px; color: #4285F4;">G</span>
+                    </div>
+                </div>
+                <div class="result-text">
+                    <div class="result-title">Search Google for 'aurora borealis'</div>
+                </div>
+                <div class="shortcut">⌘1</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-icon wiki-icon">
+                    <div style="font-weight: bold; font-size: 24px;">W</div>
+                </div>
+                <div class="result-text">
+                    <div class="result-title">Search Wikipedia for 'aurora borealis'</div>
+                </div>
+                <div class="shortcut">⌘2</div>
+            </div>
+            
+            <div class="result-item selected">
+                <div class="result-icon dict-icon">
+                    <div style="background-color: #8a2be2; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; border-radius: 5px;">
+                        <span style="color: white; font-weight: bold;">Au</span>
+                    </div>
+                </div>
+                <div class="result-text">
+                    <div class="result-title">Search Dictionary for 'aurora borealis'</div>
+                </div>
+                <div class="shortcut">→</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-icon youtube-icon">
+                    <div style="background-color: #FF0000; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; border-radius: 5px;">
+                        <span style="color: white; font-size: 16px;">▶</span>
+                    </div>
+                </div>
+                <div class="result-text">
+                    <div class="result-title">Search YouTube for 'aurora borealis'</div>
+                </div>
+                <div class="shortcut">⌘4</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-icon alfred-icon">
+                    <div style="background-color: #5c3070; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; border-radius: 5px;">
+                        <span style="color: white; font-size: 20px;">🎩</span>
+                    </div>
+                </div>
+                <div class="result-text">
+                    <div class="result-title">Search Alfred Forum for 'aurora borealis'</div>
+                </div>
+                <div class="shortcut">⌘5</div>
+            </div>
+            
+            <div class="result-item">
+                <div class="result-icon amazon-icon">
+                    <div style="background-color: white; width: 36px; height: 36px; display: flex; justify-content: center; align-items: center; border-radius: 5px;">
+                        <span style="color: #FF9900; font-size: 20px;">a</span>
+                    </div>
+                </div>
+                <div class="result-text">
+                    <div class="result-title">Search Amazon for 'aurora borealis'</div>
+                </div>
+                <div class="shortcut">⌘6</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 简单的交互效果
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            // 这里可以实现实时搜索逻辑
+            console.log('搜索:', e.target.value);
+        });
+        
+        document.querySelectorAll('.result-item').forEach(item => {
+            item.addEventListener('click', function() {
+                alert('您选择了: ' + this.querySelector('.result-title').textContent);
+            });
+            
+            item.addEventListener('mouseover', function() {
+                // 移除其他项目的selected类
+                document.querySelectorAll('.result-item').forEach(i => {
+                    i.classList.remove('selected');
+                });
+                // 给当前项目添加selected类
+                this.classList.add('selected');
+            });
+        });
+        
+        // 键盘导航
+        document.addEventListener('keydown', function(e) {
+            const items = document.querySelectorAll('.result-item');
+            const selectedItem = document.querySelector('.result-item.selected');
+            let selectedIndex = Array.from(items).indexOf(selectedItem);
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % items.length;
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            }
+            
+            items.forEach(i => i.classList.remove('selected'));
+            items[selectedIndex].classList.add('selected');
+            items[selectedIndex].scrollIntoView({ block: 'nearest' });
+        });
+    </script>
+</body>
+</html>
