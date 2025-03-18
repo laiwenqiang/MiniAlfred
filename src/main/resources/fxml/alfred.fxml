@@ -34,11 +34,11 @@
                     <padding>
                         <Insets top="15" right="20" bottom="15" left="20" />
                     </padding>
-                    <TextField id="searchInput" fx:id="searchInput" promptText="输入搜索内容" text="aurora borealis" HBox.hgrow="ALWAYS"/>
+                    <TextField id="searchInput" fx:id="searchInput" promptText="输入搜索内容" text="" HBox.hgrow="ALWAYS"/>
                 </HBox>
                 
                 <!-- Results -->
-                <ScrollPane id="resultsScroll" fitToWidth="true" fitToHeight="true" 
+                <ScrollPane fx:id="resultsScroll" fitToWidth="true" fitToHeight="false"
                            VBox.vgrow="ALWAYS" maxHeight="400">
                     <VBox id="results" fx:id="resultsContainer" spacing="0">
                         <!-- Results will be added here programmatically -->

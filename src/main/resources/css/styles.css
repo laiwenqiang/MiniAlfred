@@ -46,6 +46,10 @@
     -fx-background-color: transparent;
 }
 
+.scroll-pane {
+    -fx-scroll-pane-smooth-scrolling: true;
+}
+
 /* 结果项 */
 .result-item {
     -fx-padding: 12 20;
