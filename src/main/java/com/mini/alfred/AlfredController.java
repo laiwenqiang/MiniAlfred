@@ -1,271 +1,128 @@
 package com.mini.alfred;
 
+import com.mini.alfred.ui.SearchResult;
+import com.mini.alfred.ui.SearchResultManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import org.apache.commons.lang3.StringUtils;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class AlfredController implements Initializable {
-
     @FXML
     private TextField searchInput;
-
     @FXML
     private ScrollPane resultsScroll;
-
     @FXML
     private VBox resultsContainer;
 
-    private final List<HBox> resultItems = new ArrayList<>();
-    private int selectedIndex = 0;
     private FileSearcher fileSearcher;
-    private List<File> searchResults = new ArrayList<>();
+    private SearchResultManager resultManager;
     private CompletableFuture<Void> searchTask;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         fileSearcher = new FileSearcher();
+        resultManager = new SearchResultManager(resultsContainer, resultsScroll);
 
-        // 设置焦点策略：允许结果容器接收键盘事件
-        resultsContainer.setFocusTraversable(true);
-
-        // 设置搜索输入监听
-        searchInput.textProperty().addListener((observable, oldValue, newValue) -> performSearch(newValue));
-
-        // 键盘导航监听
-        searchInput.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
-            if (event.getCode() == KeyCode.DOWN) {
-                selectNextItem();
-                scrollToSelectedItem();
-                event.consume();
-            } else if (event.getCode() == KeyCode.UP) {
-                selectPreviousItem();
-                scrollToSelectedItem();
-                event.consume();
-            } else if (event.getCode() == KeyCode.ENTER) {
-                handleSelection();
-                event.consume();
-            }
-        });
-
-        // 初始搜索
-        performSearch(searchInput.getText());
+        initializeSearchInput();
+        initializeKeyboardNavigation();
     }
 
-    private void scrollToSelectedItem() {
-        if (selectedIndex >= 0 && selectedIndex < resultItems.size() && resultsScroll != null) {
-            HBox selectedItem = resultItems.get(selectedIndex);
+    private void initializeSearchInput() {
+        resultsContainer.setFocusTraversable(true);
+        searchInput.textProperty().addListener((observable, oldValue, newValue) -> 
+            performSearch(newValue));
+    }
 
-            // 使用异步确保布局计算完成
-            Platform.runLater(() -> {
-                // 计算选中项在容器中的相对位置
-                double itemMinY = selectedItem.getBoundsInParent().getMinY();
-                double itemMaxY = selectedItem.getBoundsInParent().getMaxY();
-                double containerHeight = resultsContainer.getHeight();
-                double viewportHeight = resultsScroll.getViewportBounds().getHeight();
-
-                // 动态调整滚动位置
-                if (itemMaxY > viewportHeight) {
-                    double targetVvalue = itemMinY / (containerHeight - viewportHeight);
-                    resultsScroll.setVvalue(targetVvalue);
-                } else if (itemMinY < resultsScroll.getVvalue() * (containerHeight - viewportHeight)) {
-                    double targetVvalue = itemMinY / (containerHeight - viewportHeight);
-                    resultsScroll.setVvalue(targetVvalue);
-                }
-            });
-        }
+    private void initializeKeyboardNavigation() {
+        searchInput.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            switch (event.getCode()) {
+                case DOWN:
+                    resultManager.selectNext();
+                    scrollToSelectedItem();
+                    break;
+                case UP:
+                    resultManager.selectPrevious();
+                    scrollToSelectedItem();
+                    break;
+                case ENTER:
+                    handleSelection();
+                    break;
+                default:
+                    return;
+            }
+            event.consume();
+        });
     }
 
     private void performSearch(String query) {
-        // 取消之前的搜索任务
         if (searchTask != null && !searchTask.isDone()) {
             searchTask.cancel(true);
         }
 
-        // 开始新的搜索任务
+        if (StringUtils.isBlank(query)) {
+            resultManager.clearResults();
+            return;
+        }
+
         searchTask = fileSearcher.searchAsync(query)
             .thenAccept(files -> Platform.runLater(() -> {
-                searchResults = files;
-                updateSearchResults();
+                List<SearchResult> results = files.stream()
+                    .map(SearchResult::new)
+                    .collect(Collectors.toList());
+                resultManager.updateResults(results);
+                if (!results.isEmpty()) {
+                    resultsScroll.setVvalue(0);
+                    scrollToSelectedItem();
+                }
             }));
     }
 
-    private void updateSearchResults() {
-        resultsContainer.getChildren().clear();
-        resultItems.clear();
-
-        if (searchResults.isEmpty()) {
-            addNoResultsItem();
-        } else {
-            for (File file : searchResults) {
-                addFileResultItem(file);
-            }
+    private void scrollToSelectedItem() {
+        var selectedItem = resultManager.getSelectedItem();
+        if (selectedItem == null || resultsScroll == null) {
+            return;
         }
 
-        // 选中第一项
-        selectedIndex = 0;
+        // 使用异步确保布局计算完成
         Platform.runLater(() -> {
-            resultsScroll.setVvalue(0);
-            updateSelection();
+            // 计算选中项在容器中的相对位置
+            double itemMinY = selectedItem.getBoundsInParent().getMinY();
+            double itemMaxY = selectedItem.getBoundsInParent().getMaxY();
+            double containerHeight = resultsContainer.getHeight();
+            double viewportHeight = resultsScroll.getViewportBounds().getHeight();
+
+            // 动态调整滚动位置
+            if (itemMaxY > viewportHeight) {
+                double targetVvalue = itemMinY / (containerHeight - viewportHeight);
+                resultsScroll.setVvalue(targetVvalue);
+            } else if (itemMinY < resultsScroll.getVvalue() * (containerHeight - viewportHeight)) {
+                double targetVvalue = itemMinY / (containerHeight - viewportHeight);
+                resultsScroll.setVvalue(targetVvalue);
+            }
         });
     }
 
-    private void addNoResultsItem() {
-        HBox resultItem = new HBox();
-        resultItem.getStyleClass().add("result-item");
-
-        // 图标
-        StackPane iconContainer = new StackPane();
-        iconContainer.getStyleClass().addAll("result-icon", "alfred-icon");
-        Label iconLabel = new Label("🔍");
-        iconContainer.getChildren().add(iconLabel);
-
-        // 文本
-        VBox textContainer = new VBox();
-        textContainer.getStyleClass().add("result-text");
-        HBox.setHgrow(textContainer, Priority.ALWAYS);
-        Label titleLabel = new Label("未找到匹配的文件");
-        titleLabel.getStyleClass().add("result-title");
-        textContainer.getChildren().add(titleLabel);
-
-        // 组合元素
-        resultItem.getChildren().addAll(iconContainer, textContainer);
-
-        // 添加到结果容器和列表
-        resultsContainer.getChildren().add(resultItem);
-        resultItems.add(resultItem);
-    }
-
-    private void addFileResultItem(File file) {
-        // 创建结果项容器
-        HBox resultItem = new HBox();
-        resultItem.getStyleClass().add("result-item");
-
-        // 图标 (根据文件类型选择不同图标)
-        StackPane iconContainer = new StackPane();
-        String iconClass = new FileType(file.getName()).getIconClass();
-        iconContainer.getStyleClass().addAll("result-icon", iconClass);
-        Label iconLabel = new Label(getFileIconText(file));
-        iconContainer.getChildren().add(iconLabel);
-
-        // 文本
-        VBox textContainer = new VBox();
-        textContainer.getStyleClass().add("result-text");
-        HBox.setHgrow(textContainer, Priority.ALWAYS);
-
-        Label titleLabel = new Label(file.getName());
-        titleLabel.getStyleClass().add("result-title");
-
-        Label pathLabel = new Label(file.getParentFile().getAbsolutePath());
-        pathLabel.getStyleClass().add("result-path");
-        pathLabel.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 12px;");
-
-        textContainer.getChildren().addAll(titleLabel, pathLabel);
-
-        // 快捷键/操作
-        Label shortcutLabel = new Label("Enter");
-        shortcutLabel.getStyleClass().add("shortcut");
-
-        // 组合所有元素
-        resultItem.getChildren().addAll(iconContainer, textContainer, shortcutLabel);
-
-        // 设置点击事件
-        resultItem.setOnMouseClicked(event -> handleItemClick(resultItem));
-
-        // 设置鼠标悬停事件
-        resultItem.setOnMouseEntered(event -> selectItem(resultItems.indexOf(resultItem)));
-
-        // 添加到结果容器和列表
-        resultsContainer.getChildren().add(resultItem);
-        resultItems.add(resultItem);
-    }
-
-    private String getFileIconText(File file) {
-        String name = file.getName().toLowerCase();
-        if (name.endsWith(".jpg") || name.endsWith(".png") || name.endsWith(".gif")) {
-            return "🖼";
-        } else if (name.endsWith(".pdf")) {
-            return "📄";
-        } else if (name.endsWith(".doc") || name.endsWith(".docx") || name.endsWith(".txt")) {
-            return "📝";
-        } else if (name.endsWith(".mp3") || name.endsWith(".wav")) {
-            return "🎵";
-        } else if (name.endsWith(".mp4") || name.endsWith(".avi") || name.endsWith(".mov")) {
-            return "🎬";
-        } else {
-            return "📁";
-        }
-    }
-
-    private void selectNextItem() {
-        if (resultItems.isEmpty()) {
-            return;
-        }
-        selectedIndex = (selectedIndex + 1) % resultItems.size();
-        updateSelection();
-    }
-
-    private void selectPreviousItem() {
-        if (resultItems.isEmpty()) return;
-        selectedIndex = (selectedIndex - 1 + resultItems.size()) % resultItems.size();
-        updateSelection();
-    }
-
-    private void selectItem(int index) {
-        if (index >= 0 && index < resultItems.size()) {
-            selectedIndex = index;
-            updateSelection();
-        }
-    }
-
-    private void updateSelection() {
-        for (int i = 0; i < resultItems.size(); i++) {
-            HBox item = resultItems.get(i);
-            if (i == selectedIndex) {
-                if (!item.getStyleClass().contains("selected")) {
-                    item.getStyleClass().add("selected");
-                }
-            } else {
-                item.getStyleClass().remove("selected");
-            }
-        }
-        scrollToSelectedItem(); // 确保每次选择都触发滚动
-    }
-
-    private void handleItemClick(HBox item) {
-        int index = resultItems.indexOf(item);
-        if (index >= 0) {
-            selectItem(index);
-            handleSelection();
-        }
-    }
-
     private void handleSelection() {
-        if (searchResults.isEmpty() || selectedIndex < 0 || selectedIndex >= searchResults.size()) {
-            return;
+        SearchResult selectedResult = resultManager.getSelectedResult();
+        if (selectedResult != null) {
+            tryOpenFile(selectedResult.getFile());
         }
-
-        File selectedFile = searchResults.get(selectedIndex);
-        tryOpenFile(selectedFile);
     }
 
     private void tryOpenFile(File file) {

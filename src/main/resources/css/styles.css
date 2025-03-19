@@ -50,6 +50,34 @@
     -fx-scroll-pane-smooth-scrolling: true;
 }
 
+/* 滚动条样式 */
+.scroll-bar {
+    -fx-background-color: transparent;
+    -fx-pref-width: 8px;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(128, 0, 128, 0.8);
+    -fx-background-radius: 4px;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+/* 隐藏滚动条的箭头按钮 */
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: "";
+    -fx-padding: 0;
+}
+
 /* 结果项 */
 .result-item {
     -fx-padding: 12 20;
@@ -59,6 +87,7 @@
 }
 
 .result-item:hover, .result-item.selected {
+    -fx-background-radius: 10;
     -fx-background-color: rgba(128, 0, 128, 0.8);
 }
 
@@ -184,4 +213,4 @@
 .empty-result-icon .label {
     -fx-text-fill: white;
     -fx-font-size: 20px;
-} 
+}

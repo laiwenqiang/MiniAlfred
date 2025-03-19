@@ -32,9 +32,9 @@
                 <!-- Search Bar -->
                 <HBox id="searchBar" alignment="CENTER_LEFT">
                     <padding>
-                        <Insets top="15" right="20" bottom="15" left="20" />
+                        <Insets top="10" right="20" bottom="10" left="20" />
                     </padding>
-                    <TextField id="searchInput" fx:id="searchInput" promptText="输入搜索内容" text="" HBox.hgrow="ALWAYS"/>
+                    <TextField id="searchInput" fx:id="searchInput" HBox.hgrow="ALWAYS"/>
                 </HBox>
                 
                 <!-- Results -->
