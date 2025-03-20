@@ -8,67 +8,54 @@ import javafx.scene.layout.VBox;
 
 public class SearchResultItemFactory {
     
-    public static HBox createNoResultItem() {
-        HBox resultItem = new HBox();
-        resultItem.getStyleClass().add("result-item");
-
-        StackPane iconContainer = createIconContainer("🔍", "alfred-icon");
-        VBox textContainer = createTextContainer("未找到匹配的文件", null);
-
-        resultItem.getChildren().addAll(iconContainer, textContainer);
-        return resultItem;
-    }
-    
     public static HBox createSearchResultItem(SearchResult result) {
+        StackPane iconContainer = getIconContainer(result);
+        VBox textContainer = getTextContainer(result);
+        Label shortcutLabel = getShortcutLabel();
+
         HBox resultItem = new HBox();
         resultItem.getStyleClass().add("result-item");
-
-        StackPane iconContainer = createIconContainer(
-            result.getFileType().getIconText(), 
-            result.getFileType().getIconClass()
-        );
-        
-        VBox textContainer = createTextContainer(
-            result.getDisplayName(), 
-            result.getPath()
-        );
-        
-        Label shortcutLabel = createShortcutLabel();
-
         resultItem.getChildren().addAll(iconContainer, textContainer, shortcutLabel);
+
         return resultItem;
     }
-    
-    private static StackPane createIconContainer(String iconText, String iconClass) {
-        StackPane iconContainer = new StackPane();
-        iconContainer.getStyleClass().addAll("result-icon", iconClass);
-        Label iconLabel = new Label(iconText);
-        iconContainer.getChildren().add(iconLabel);
-        return iconContainer;
-    }
-    
-    private static VBox createTextContainer(String title, String path) {
+
+    private static VBox getTextContainer(SearchResult result) {
         VBox textContainer = new VBox();
         textContainer.getStyleClass().add("result-text");
         HBox.setHgrow(textContainer, Priority.ALWAYS);
 
-        Label titleLabel = new Label(title);
+        Label titleLabel = new Label(result.getTitle());
         titleLabel.getStyleClass().add("result-title");
-        textContainer.getChildren().add(titleLabel);
 
-        if (path != null) {
-            Label pathLabel = new Label(path);
-            pathLabel.getStyleClass().add("result-path");
-            pathLabel.setStyle("-fx-text-fill: #aaaaaa; -fx-font-size: 12px;");
-            textContainer.getChildren().add(pathLabel);
+        Label subtitleLabel = new Label(result.getSubtitle());
+        subtitleLabel.getStyleClass().add("result-path");
+
+        textContainer.getChildren().addAll(titleLabel, subtitleLabel);
+
+        if (result.getType() == SearchResult.ResultType.CALCULATOR) {
+            // 只显示图标和结果
+            Label resultLabel = new Label(result.getTitle());
+            resultLabel.getStyleClass().add("calculator-result");
+
+            // 不添加副标题
+            textContainer.getChildren().clear();
+            textContainer.getChildren().add(resultLabel);
         }
-
         return textContainer;
     }
-    
-    private static Label createShortcutLabel() {
+
+    private static Label getShortcutLabel() {
         Label shortcutLabel = new Label("Enter");
         shortcutLabel.getStyleClass().add("shortcut");
         return shortcutLabel;
+    }
+
+    private static StackPane getIconContainer(SearchResult result) {
+        StackPane iconContainer = new StackPane();
+        iconContainer.getStyleClass().addAll("result-icon", result.getIconClass());
+        Label iconLabel = new Label(result.getIconText());
+        iconContainer.getChildren().add(iconLabel);
+        return iconContainer;
     }
 }

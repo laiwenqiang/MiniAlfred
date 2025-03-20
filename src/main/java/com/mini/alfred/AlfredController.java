@@ -1,5 +1,6 @@
 package com.mini.alfred;
 
+import com.mini.alfred.calculator.Calculator;
 import com.mini.alfred.ui.SearchResult;
 import com.mini.alfred.ui.SearchResultManager;
 import javafx.application.Platform;
@@ -9,14 +10,19 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.Desktop;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
@@ -79,6 +85,20 @@ public class AlfredController implements Initializable {
             resultManager.clearResults();
             return;
         }
+        
+        // 检查是否是计算表达式
+        if (isCalculatorQuery(query)) {
+            try {
+                double result = Calculator.calculate(query);
+                List<SearchResult> results = new ArrayList<>();
+                results.add(new SearchResult(query, result));
+                resultManager.updateResults(results);
+                return;
+            } catch (Exception e) {
+                // 如果计算出错，继续尝试文件搜索
+                System.err.println("计算错误: " + e.getMessage());
+            }
+        }
 
         searchTask = fileSearcher.searchAsync(query)
             .thenAccept(files -> Platform.runLater(() -> {
@@ -92,7 +112,45 @@ public class AlfredController implements Initializable {
                 }
             }));
     }
-
+    
+    private boolean isCalculatorQuery(String query) {
+        // 简单判断是否可能是计算表达式
+        return Calculator.isValidExpression(query);
+    }
+    
+    private void handleSelection() {
+        SearchResult selectedResult = resultManager.getSelectedResult();
+        if (selectedResult == null) {
+            return;
+        }
+        
+        switch (selectedResult.getType()) {
+            case FILE:
+                openFile(selectedResult.getFile());
+                break;
+            case CALCULATOR:
+                copyToClipboard(selectedResult.getCalculationResult());
+                showNotification("计算结果已复制到剪贴板");
+                break;
+        }
+    }
+    
+    private void copyToClipboard(String text) {
+        StringSelection selection = new StringSelection(text);
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents(selection, null);
+    }
+    
+    private void showNotification(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("提示");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.show();
+        });
+    }
+    
     private void scrollToSelectedItem() {
         var selectedItem = resultManager.getSelectedItem();
         if (selectedItem == null || resultsScroll == null) {
@@ -118,14 +176,7 @@ public class AlfredController implements Initializable {
         });
     }
 
-    private void handleSelection() {
-        SearchResult selectedResult = resultManager.getSelectedResult();
-        if (selectedResult != null) {
-            tryOpenFile(selectedResult.getFile());
-        }
-    }
-
-    private void tryOpenFile(File file) {
+    private void openFile(File file) {
         try {
             Desktop desktop = Desktop.getDesktop();
             if (desktop.isSupported(Desktop.Action.OPEN)) {
