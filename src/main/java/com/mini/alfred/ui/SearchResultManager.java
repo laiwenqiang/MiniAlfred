@@ -1,23 +1,27 @@
 package com.mini.alfred.ui;
 
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SearchResultManager {
     private final VBox resultsContainer;
     private final ScrollPane resultsScroll;
     private final List<HBox> resultItems;
     private final List<SearchResult> searchResults;
+    private final Consumer<SearchResult> onResultClicked;
     private int selectedIndex;
 
-    public SearchResultManager(VBox resultsContainer, ScrollPane resultsScroll) {
+    public SearchResultManager(VBox resultsContainer, ScrollPane resultsScroll, Consumer<SearchResult> onResultClicked) {
         this.resultsContainer = resultsContainer;
         this.resultsScroll = resultsScroll;
+        this.onResultClicked = onResultClicked;
         this.resultItems = new ArrayList<>();
         this.searchResults = new ArrayList<>();
         this.selectedIndex = 0;
@@ -60,7 +64,12 @@ public class SearchResultManager {
         HBox item = SearchResultItemFactory.createSearchResultItem(result);
         
         int index = resultItems.size();
-        item.setOnMouseClicked(event -> selectItem(index));
+        item.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 1) {
+                selectItem(index);
+                onResultClicked.accept(result);
+            }
+        });
         item.setOnMouseEntered(event -> selectItem(index));
         
         resultsContainer.getChildren().add(item);
@@ -98,7 +107,9 @@ public class SearchResultManager {
             boolean isSelected = (i == selectedIndex);
             
             if (isSelected) {
-                item.getStyleClass().add("selected");
+                if (!item.getStyleClass().contains("selected")) {
+                    item.getStyleClass().add("selected");
+                }
             } else {
                 item.getStyleClass().remove("selected");
             }
