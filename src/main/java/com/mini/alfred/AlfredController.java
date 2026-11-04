@@ -43,7 +43,8 @@ public class AlfredController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         fileSearcher = new FileSearcher();
-        resultManager = new SearchResultManager(resultsContainer, resultsScroll);
+        resultManager = new SearchResultManager(resultsContainer, resultsScroll,
+            result -> copyToClipboard(result.getTitle()));
 
         initializeSearchInput();
         initializeKeyboardNavigation();
@@ -129,7 +130,7 @@ public class AlfredController implements Initializable {
                 openFile(selectedResult.getFile());
                 break;
             case CALCULATOR:
-                copyToClipboard(selectedResult.getCalculationResult());
+                copyToClipboard(selectedResult.getTitle());
                 showNotification("计算结果已复制到剪贴板");
                 break;
         }
